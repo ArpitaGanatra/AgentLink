@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "solana-agent-kit": {
+      "command": "npx",
+      "args": ["-y", "solana-mcp"],
+      "env": {
+        "RPC_URL": "${RPC_URL:-https://api.devnet.solana.com}",
+        "SOLANA_PRIVATE_KEY": "${SOLANA_PRIVATE_KEY}"
+      }
+    }
+  }
+}

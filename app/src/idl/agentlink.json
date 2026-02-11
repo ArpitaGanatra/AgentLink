@@ -1,0 +1,627 @@
+{
+  "address": "3guFi1GbjiSKxVvsG5mQhP34vHYWBhUX98TibcoRHKZD",
+  "metadata": {
+    "name": "agentlink",
+    "version": "0.1.0",
+    "spec": "0.1.0",
+    "description": "Created with Anchor"
+  },
+  "instructions": [
+    {
+      "name": "approve_job",
+      "docs": [
+        "Approve job and release payment (requester)"
+      ],
+      "discriminator": [
+        201,
+        133,
+        238,
+        82,
+        103,
+        63,
+        234,
+        131
+      ],
+      "accounts": [
+        {
+          "name": "escrow",
+          "writable": true
+        },
+        {
+          "name": "worker_agent",
+          "writable": true
+        },
+        {
+          "name": "worker_creator",
+          "writable": true
+        },
+        {
+          "name": "requester_agent"
+        },
+        {
+          "name": "requester",
+          "signer": true
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "cancel_job",
+      "docs": [
+        "Cancel job and refund (requester, only if status is Open)"
+      ],
+      "discriminator": [
+        126,
+        241,
+        155,
+        241,
+        50,
+        236,
+        83,
+        118
+      ],
+      "accounts": [
+        {
+          "name": "escrow",
+          "writable": true
+        },
+        {
+          "name": "requester_agent",
+          "writable": true
+        },
+        {
+          "name": "requester",
+          "writable": true,
+          "signer": true
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "claim_timeout",
+      "docs": [
+        "Claim payment after timeout (anyone can call)"
+      ],
+      "discriminator": [
+        130,
+        234,
+        45,
+        53,
+        120,
+        90,
+        86,
+        178
+      ],
+      "accounts": [
+        {
+          "name": "escrow",
+          "writable": true
+        },
+        {
+          "name": "worker_agent",
+          "writable": true
+        },
+        {
+          "name": "worker_creator",
+          "writable": true
+        },
+        {
+          "name": "caller",
+          "docs": [
+            "Anyone can call this after timeout"
+          ],
+          "signer": true
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "complete_job",
+      "docs": [
+        "Mark job as complete (worker)"
+      ],
+      "discriminator": [
+        221,
+        216,
+        225,
+        72,
+        101,
+        250,
+        3,
+        11
+      ],
+      "accounts": [
+        {
+          "name": "escrow",
+          "writable": true
+        },
+        {
+          "name": "worker_agent"
+        },
+        {
+          "name": "worker",
+          "signer": true
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "configure_split",
+      "docs": [
+        "Configure creator split percentage"
+      ],
+      "discriminator": [
+        251,
+        161,
+        38,
+        14,
+        145,
+        32,
+        23,
+        10
+      ],
+      "accounts": [
+        {
+          "name": "agent",
+          "writable": true
+        },
+        {
+          "name": "authority",
+          "signer": true
+        }
+      ],
+      "args": [
+        {
+          "name": "new_split_bps",
+          "type": "u16"
+        }
+      ]
+    },
+    {
+      "name": "create_job",
+      "docs": [
+        "Create a new job with escrow"
+      ],
+      "discriminator": [
+        178,
+        130,
+        217,
+        110,
+        100,
+        27,
+        82,
+        119
+      ],
+      "accounts": [
+        {
+          "name": "escrow",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  101,
+                  115,
+                  99,
+                  114,
+                  111,
+                  119
+                ]
+              },
+              {
+                "kind": "arg",
+                "path": "job_id"
+              }
+            ]
+          }
+        },
+        {
+          "name": "requester_agent",
+          "writable": true
+        },
+        {
+          "name": "requester",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "job_id",
+          "type": "string"
+        },
+        {
+          "name": "job_hash",
+          "type": {
+            "array": [
+              "u8",
+              32
+            ]
+          }
+        },
+        {
+          "name": "amount",
+          "type": "u64"
+        },
+        {
+          "name": "timeout_hours",
+          "type": "u8"
+        }
+      ]
+    },
+    {
+      "name": "dispute_job",
+      "docs": [
+        "Dispute a job (either party)"
+      ],
+      "discriminator": [
+        101,
+        104,
+        253,
+        231,
+        1,
+        139,
+        108,
+        100
+      ],
+      "accounts": [
+        {
+          "name": "escrow",
+          "writable": true
+        },
+        {
+          "name": "caller_agent",
+          "docs": [
+            "Agent account of the caller (must be requester or worker)"
+          ]
+        },
+        {
+          "name": "caller",
+          "signer": true
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "hire_agent",
+      "docs": [
+        "Hire an agent for a job"
+      ],
+      "discriminator": [
+        150,
+        4,
+        189,
+        137,
+        202,
+        207,
+        181,
+        229
+      ],
+      "accounts": [
+        {
+          "name": "escrow",
+          "writable": true
+        },
+        {
+          "name": "worker_agent"
+        },
+        {
+          "name": "requester_agent"
+        },
+        {
+          "name": "requester",
+          "signer": true
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "register_agent",
+      "docs": [
+        "Register a new agent with on-chain identity"
+      ],
+      "discriminator": [
+        135,
+        157,
+        66,
+        195,
+        2,
+        113,
+        175,
+        30
+      ],
+      "accounts": [
+        {
+          "name": "agent",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  97,
+                  103,
+                  101,
+                  110,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "creator"
+              },
+              {
+                "kind": "arg",
+                "path": "name"
+              }
+            ]
+          }
+        },
+        {
+          "name": "creator",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "name",
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "withdraw",
+      "docs": [
+        "Withdraw earnings from agent PDA"
+      ],
+      "discriminator": [
+        183,
+        18,
+        70,
+        156,
+        148,
+        109,
+        161,
+        34
+      ],
+      "accounts": [
+        {
+          "name": "agent",
+          "writable": true
+        },
+        {
+          "name": "authority",
+          "writable": true,
+          "signer": true
+        }
+      ],
+      "args": [
+        {
+          "name": "amount",
+          "type": "u64"
+        }
+      ]
+    }
+  ],
+  "accounts": [
+    {
+      "name": "AgentAccount",
+      "discriminator": [
+        241,
+        119,
+        69,
+        140,
+        233,
+        9,
+        112,
+        50
+      ]
+    },
+    {
+      "name": "EscrowAccount",
+      "discriminator": [
+        36,
+        69,
+        48,
+        18,
+        128,
+        225,
+        125,
+        135
+      ]
+    }
+  ],
+  "errors": [
+    {
+      "code": 6000,
+      "name": "NameTooLong",
+      "msg": "Agent name too long (max 32 characters)"
+    },
+    {
+      "code": 6001,
+      "name": "NameEmpty",
+      "msg": "Agent name cannot be empty"
+    },
+    {
+      "code": 6002,
+      "name": "JobIdTooLong",
+      "msg": "Job ID too long (max 36 characters)"
+    },
+    {
+      "code": 6003,
+      "name": "InvalidAmount",
+      "msg": "Invalid amount"
+    },
+    {
+      "code": 6004,
+      "name": "InvalidTimeout",
+      "msg": "Invalid timeout (must be 24, 48, or 72 hours)"
+    },
+    {
+      "code": 6005,
+      "name": "InvalidJobStatus",
+      "msg": "Invalid job status for this operation"
+    },
+    {
+      "code": 6006,
+      "name": "Unauthorized",
+      "msg": "Unauthorized"
+    },
+    {
+      "code": 6007,
+      "name": "InvalidWorker",
+      "msg": "Invalid worker"
+    },
+    {
+      "code": 6008,
+      "name": "InvalidRequester",
+      "msg": "Invalid requester"
+    },
+    {
+      "code": 6009,
+      "name": "InvalidCreator",
+      "msg": "Invalid creator"
+    },
+    {
+      "code": 6010,
+      "name": "DeadlineNotReached",
+      "msg": "Deadline not reached"
+    },
+    {
+      "code": 6011,
+      "name": "SplitTooHigh",
+      "msg": "Creator split too high (max 50%)"
+    },
+    {
+      "code": 6012,
+      "name": "InsufficientFunds",
+      "msg": "Insufficient funds"
+    },
+    {
+      "code": 6013,
+      "name": "NothingToWithdraw",
+      "msg": "Nothing to withdraw"
+    }
+  ],
+  "types": [
+    {
+      "name": "AgentAccount",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "bump",
+            "type": "u8"
+          },
+          {
+            "name": "name",
+            "type": "string"
+          },
+          {
+            "name": "creator",
+            "type": "pubkey"
+          },
+          {
+            "name": "authority",
+            "type": "pubkey"
+          },
+          {
+            "name": "created_at",
+            "type": "i64"
+          },
+          {
+            "name": "creator_signed",
+            "type": "bool"
+          },
+          {
+            "name": "verified",
+            "type": "bool"
+          },
+          {
+            "name": "successful_jobs",
+            "type": "u32"
+          },
+          {
+            "name": "total_earned",
+            "type": "u64"
+          },
+          {
+            "name": "total_spent",
+            "type": "u64"
+          },
+          {
+            "name": "reputation_score",
+            "type": "u16"
+          },
+          {
+            "name": "creator_split_bps",
+            "type": "u16"
+          }
+        ]
+      }
+    },
+    {
+      "name": "EscrowAccount",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "bump",
+            "type": "u8"
+          },
+          {
+            "name": "job_id",
+            "type": "string"
+          },
+          {
+            "name": "job_hash",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "requester",
+            "type": "pubkey"
+          },
+          {
+            "name": "worker",
+            "type": "pubkey"
+          },
+          {
+            "name": "amount",
+            "type": "u64"
+          },
+          {
+            "name": "status",
+            "type": "u8"
+          },
+          {
+            "name": "timeout_hours",
+            "type": "u8"
+          },
+          {
+            "name": "deadline",
+            "type": "i64"
+          },
+          {
+            "name": "created_at",
+            "type": "i64"
+          }
+        ]
+      }
+    }
+  ]
+}

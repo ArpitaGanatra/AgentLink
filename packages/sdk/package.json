@@ -1,0 +1,41 @@
+{
+  "name": "@agentlink/sdk",
+  "version": "0.1.0",
+  "description": "TypeScript SDK for AgentLink - Agent identity and job marketplace on Solana",
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup src/index.ts --format cjs,esm --dts",
+    "dev": "tsup src/index.ts --format cjs,esm --dts --watch",
+    "lint": "eslint src/",
+    "test": "vitest"
+  },
+  "keywords": [
+    "solana",
+    "agent",
+    "ai",
+    "marketplace",
+    "escrow",
+    "identity"
+  ],
+  "author": "AgentLink",
+  "license": "MIT",
+  "dependencies": {
+    "@coral-xyz/anchor": "^0.30.1",
+    "@solana/web3.js": "^1.95.8"
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.4",
+    "tsup": "^8.4.0",
+    "typescript": "^5.7.3",
+    "vitest": "^3.0.5"
+  },
+  "peerDependencies": {
+    "@coral-xyz/anchor": ">=0.29.0",
+    "@solana/web3.js": ">=1.90.0"
+  }
+}
