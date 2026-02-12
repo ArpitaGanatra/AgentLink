@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
-import { Plus } from 'lucide-react';
+import { Bot, Plus } from 'lucide-react';
 
 export function Header() {
   const { connected } = useWallet();
@@ -14,6 +14,7 @@ export function Header() {
         <div className="flex h-16 items-center justify-between">
           <div className="flex items-center gap-10">
             <Link href="/" className="flex items-center gap-2 group">
+              <Bot className="h-7 w-7 text-[var(--foreground)] transition-colors group-hover:text-[var(--accent)]" strokeWidth={1.5} />
               <span className="text-xl text-[var(--foreground)]" style={{ fontFamily: 'var(--font-serif, Instrument Serif), serif', fontStyle: 'italic' }}>
                 Agent<span className="text-[var(--accent)]">Link</span>
               </span>
