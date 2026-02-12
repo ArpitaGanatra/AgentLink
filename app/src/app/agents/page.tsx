@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { Bot, Users, ArrowRight } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 
 interface Agent {
   id: string;
@@ -29,41 +29,38 @@ export default function AgentsPage() {
   }, []);
 
   return (
-    <div className="min-h-screen gradient-bg pt-24 pb-12 px-4">
+    <div className="min-h-screen pt-24 pb-12 px-4" style={{ background: 'var(--background)' }}>
       <div className="max-w-6xl mx-auto">
         {/* Header */}
-        <div className="mb-8 animate-fade-in">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-[var(--card-border)] bg-[var(--card-bg)] backdrop-blur-sm mb-6">
-            <Users className="h-4 w-4 text-[var(--accent)]" />
-            <span className="text-sm text-[var(--foreground-muted)]">Discover AI agents</span>
-          </div>
-          <h1 className="text-4xl font-bold text-[var(--foreground)]">Agents</h1>
-          <p className="text-[var(--foreground-muted)] mt-2">
+        <div className="mb-4 animate-fade-in">
+          <h1 className="mb-2" style={{ fontFamily: "'Instrument Serif', serif", fontSize: '42px', lineHeight: 1.1, letterSpacing: '-0.02em' }}>
+            Agents
+          </h1>
+          <p className="text-[var(--foreground-muted)] text-sm">
             Browse registered AI agents on AgentLink
           </p>
         </div>
 
+        <hr className="section-divider mb-4 animate-draw-line" />
+
         {loading ? (
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {[1, 2, 3].map(i => (
-              <div key={i} className="glass-card p-6 animate-pulse">
+              <div key={i} className="workshop-card p-6 animate-pulse">
                 <div className="flex items-start gap-4">
-                  <div className="h-14 w-14 bg-[var(--card-bg)] rounded-xl" />
+                  <div className="h-12 w-12 bg-[var(--background-secondary)] rounded-full" />
                   <div className="flex-1">
-                    <div className="h-4 bg-[var(--card-bg)] rounded w-1/2 mb-2" />
-                    <div className="h-3 bg-[var(--card-bg)] rounded w-3/4" />
+                    <div className="h-4 bg-[var(--background-secondary)] w-1/2 mb-2" style={{ borderRadius: '2px' }} />
+                    <div className="h-3 bg-[var(--background-secondary)] w-3/4" style={{ borderRadius: '2px' }} />
                   </div>
                 </div>
               </div>
             ))}
           </div>
         ) : agents.length === 0 ? (
-          <div className="glass-card p-12 text-center animate-fade-in">
-            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[var(--accent)] to-purple-500 flex items-center justify-center mx-auto mb-6 opacity-50">
-              <Bot className="h-8 w-8 text-white" />
-            </div>
-            <h3 className="text-xl font-semibold text-[var(--foreground)] mb-2">No agents yet</h3>
-            <p className="text-[var(--foreground-muted)] mb-6">Be the first to register an agent!</p>
+          <div className="workshop-card p-12 text-center animate-fade-in">
+            <h3 className="text-lg font-semibold text-[var(--foreground)] mb-2">No agents yet</h3>
+            <p className="text-[var(--foreground-muted)] text-sm mb-6">Be the first to register an agent!</p>
             <Link href="/register">
               <button className="btn-primary">
                 Register Agent
@@ -79,24 +76,24 @@ export default function AgentsPage() {
                 href={`/agents/${agent.wallet_address}/${agent.name}`}
               >
                 <div
-                  className="glass-card p-6 h-full animate-fade-in group"
-                  style={{ animationDelay: `${0.05 * i}s` }}
+                  className="workshop-card p-6 h-full animate-fade-in group"
+                  style={{ animationDelay: `${0.03 * i}s` }}
                 >
                   <div className="flex items-start gap-4">
-                    <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-[var(--accent)] to-purple-500 p-0.5 flex-shrink-0">
-                      <div className="w-full h-full rounded-xl bg-[var(--background)] flex items-center justify-center">
-                        <Bot className="h-6 w-6 text-[var(--accent)]" />
-                      </div>
+                    {/* Initial circle avatar */}
+                    <div className="w-12 h-12 rounded-full flex-shrink-0 flex items-center justify-center" style={{ background: 'var(--foreground)', color: 'var(--background)' }}>
+                      <span className="text-lg font-semibold uppercase">
+                        {agent.name.charAt(0)}
+                      </span>
                     </div>
                     <div className="flex-1 min-w-0">
-                      <h3 className="font-semibold text-[var(--foreground)] truncate group-hover:text-[var(--accent)] transition-colors">
+                      <h3 className="font-semibold text-[var(--foreground)] truncate group-hover:text-[var(--accent)] transition-colors" style={{ fontFamily: "'Instrument Serif', serif" }}>
                         {agent.name}
                       </h3>
-                      <p className="text-sm text-[var(--foreground-muted)] truncate font-mono">
+                      <p className="text-xs text-[var(--foreground-muted)] truncate" style={{ fontFamily: "'IBM Plex Mono', monospace" }}>
                         {agent.wallet_address.slice(0, 8)}...{agent.wallet_address.slice(-4)}
                       </p>
                     </div>
-                    <ArrowRight className="h-5 w-5 text-[var(--foreground-muted)] opacity-0 group-hover:opacity-100 transition-opacity" />
                   </div>
 
                   {agent.description && (

@@ -11,16 +11,17 @@ const Badge = forwardRef<HTMLDivElement, BadgeProps>(
       <div
         ref={ref}
         className={cn(
-          'inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium',
+          'inline-flex items-center px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.06em]',
           {
-            'bg-indigo-100 text-indigo-800': variant === 'default',
-            'bg-gray-100 text-gray-800': variant === 'secondary',
-            'bg-green-100 text-green-800': variant === 'success',
-            'bg-yellow-100 text-yellow-800': variant === 'warning',
-            'bg-red-100 text-red-800': variant === 'destructive',
+            'bg-[var(--foreground)] text-[var(--background)]': variant === 'default',
+            'border border-[var(--card-border)] text-[var(--foreground-muted)]': variant === 'secondary',
+            'border border-[var(--secondary)] text-[var(--secondary)]': variant === 'success',
+            'border border-[var(--warning)] text-[var(--warning)]': variant === 'warning',
+            'border border-[var(--error)] text-[var(--error)]': variant === 'destructive',
           },
           className
         )}
+        style={{ borderRadius: '2px' }}
         {...props}
       />
     );

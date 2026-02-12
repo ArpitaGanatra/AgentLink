@@ -7,7 +7,7 @@ import { useConnection } from '@solana/wallet-adapter-react';
 import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
 import { PublicKey, SystemProgram, Transaction, LAMPORTS_PER_SOL } from '@solana/web3.js';
 import Link from 'next/link';
-import { Briefcase, Clock, Coins, User, CheckCircle, Zap, Send, Check, AlertCircle, FileText, ExternalLink } from 'lucide-react';
+import { Clock, Zap, Send, Check, AlertCircle, FileText, ExternalLink, CheckCircle, ArrowRight } from 'lucide-react';
 
 interface Agent {
   id: string;
@@ -51,13 +51,22 @@ interface Job {
   applications?: Application[];
 }
 
-const STATUS_STYLES: Record<string, string> = {
+const STATUS_TAG: Record<string, string> = {
   open: 'tag-success',
   in_progress: 'tag-warning',
   pending_approval: 'tag-warning',
-  completed: '',
-  disputed: 'bg-red-500/10 text-red-400 border-red-500/20',
+  completed: 'tag-success',
+  disputed: 'tag-error',
   cancelled: '',
+};
+
+const STATUS_BORDER: Record<string, string> = {
+  open: 'var(--accent)',
+  in_progress: 'var(--warning)',
+  pending_approval: 'var(--warning)',
+  completed: 'var(--secondary)',
+  disputed: 'var(--error)',
+  cancelled: 'var(--divider)',
 };
 
 export default function JobDetailPage() {
@@ -88,7 +97,6 @@ export default function JobDetailPage() {
       .then(data => {
         setJob(data.job);
         setLoading(false);
-        // Fetch submission if job is pending_approval or completed
         if (['pending_approval', 'completed'].includes(data.job.status)) {
           fetch(`/api/jobs/${jobId}/submission`)
             .then(res => res.json())
@@ -102,7 +110,6 @@ export default function JobDetailPage() {
       });
   }, [jobId]);
 
-  // Fetch user's agent
   useEffect(() => {
     if (publicKey) {
       fetch(`/api/agents?wallet=${publicKey.toBase58()}`)
@@ -148,7 +155,6 @@ export default function JobDetailPage() {
       setShowApplyForm(false);
       setPitch('');
 
-      // Refresh job data
       const jobRes = await fetch(`/api/jobs/${jobId}`);
       const jobData = await jobRes.json();
       setJob(jobData.job);
@@ -167,7 +173,6 @@ export default function JobDetailPage() {
     setApproveMsg('');
 
     try {
-      // 1. Create SOL transfer transaction
       const workerPubkey = new PublicKey(job.worker.wallet_address);
       const lamports = Math.round(job.payment_sol * LAMPORTS_PER_SOL);
 
@@ -179,16 +184,13 @@ export default function JobDetailPage() {
         })
       );
 
-      // 2. Send transaction (user signs with wallet)
       setApproveMsg('Signing transaction...');
       const signature = await sendTransaction(transaction, connection);
 
-      // 3. Wait for confirmation
       setApproveMsg('Confirming on Solana...');
       await connection.confirmTransaction(signature, 'confirmed');
       setTxSignature(signature);
 
-      // 4. Call approve API with tx signature
       const res = await fetch(`/api/jobs/${jobId}/approve`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -208,7 +210,6 @@ export default function JobDetailPage() {
 
       setApproveMsg(`Approved! ${data.payment_sol} SOL sent to ${job.worker.name}`);
 
-      // Refresh job data
       const jobRes = await fetch(`/api/jobs/${jobId}`);
       const jobData = await jobRes.json();
       setJob(jobData.job);
@@ -230,12 +231,12 @@ export default function JobDetailPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen gradient-bg pt-24 pb-12 px-4">
+      <div className="min-h-screen pt-24 pb-12 px-4" style={{ background: 'var(--background)' }}>
         <div className="max-w-4xl mx-auto">
-          <div className="glass-card p-8 animate-pulse">
-            <div className="h-8 bg-[var(--card-bg)] rounded w-1/2 mb-4" />
-            <div className="h-4 bg-[var(--card-bg)] rounded w-3/4 mb-8" />
-            <div className="h-64 bg-[var(--card-bg)] rounded" />
+          <div className="animate-pulse">
+            <div className="h-8 bg-[var(--background-secondary)] w-1/2 mb-4" style={{ borderRadius: '2px' }} />
+            <div className="h-4 bg-[var(--background-secondary)] w-3/4 mb-8" style={{ borderRadius: '2px' }} />
+            <div className="h-64 bg-[var(--background-secondary)]" style={{ borderRadius: '2px' }} />
           </div>
         </div>
       </div>
@@ -244,14 +245,14 @@ export default function JobDetailPage() {
 
   if (error || !job) {
     return (
-      <div className="min-h-screen gradient-bg pt-24 pb-12 px-4">
+      <div className="min-h-screen pt-24 pb-12 px-4" style={{ background: 'var(--background)' }}>
         <div className="max-w-4xl mx-auto">
-          <div className="glass-card p-12 text-center animate-fade-in">
-            <div className="w-20 h-20 rounded-2xl bg-[var(--card-bg)] flex items-center justify-center mx-auto mb-6">
-              <Briefcase className="h-10 w-10 text-[var(--foreground-muted)]" />
+          <div className="workshop-card p-12 text-center animate-fade-in">
+            <div className="w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6" style={{ background: 'var(--background-secondary)' }}>
+              <FileText className="h-10 w-10 text-[var(--foreground-muted)]" />
             </div>
-            <h1 className="text-2xl font-bold text-[var(--foreground)] mb-2">Job Not Found</h1>
-            <p className="text-[var(--foreground-muted)]">
+            <h1 className="text-2xl font-semibold text-[var(--foreground)] mb-2" style={{ fontFamily: "'Instrument Serif', serif" }}>Job Not Found</h1>
+            <p className="text-[var(--foreground-muted)] text-sm">
               The job you&apos;re looking for doesn&apos;t exist.
             </p>
           </div>
@@ -261,48 +262,61 @@ export default function JobDetailPage() {
   }
 
   return (
-    <div className="min-h-screen gradient-bg pt-24 pb-12 px-4">
+    <div className="min-h-screen pt-24 pb-12 px-4" style={{ background: 'var(--background)' }}>
       <div className="max-w-4xl mx-auto">
         {/* Header */}
-        <div className="mb-8 animate-fade-in">
-          <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
+        <div className="mb-4 animate-fade-in">
+          <div className="flex flex-col md:flex-row md:items-start justify-between gap-6">
             <div>
               <div className="flex items-center gap-3 flex-wrap mb-2">
-                <h1 className="text-3xl font-bold text-[var(--foreground)]">{job.title}</h1>
-                <span className={`tag ${STATUS_STYLES[job.status] || ''}`}>
+                <h1 style={{ fontFamily: "'Instrument Serif', serif", fontSize: '36px', lineHeight: 1.1, letterSpacing: '-0.02em' }}>
+                  {job.title}
+                </h1>
+                <span className={`tag ${STATUS_TAG[job.status] || ''}`}>
                   {job.status.replace('_', ' ')}
                 </span>
+                {job.hire_mode !== 'manual' && (
+                  <span className="tag">
+                    <Zap className="h-3 w-3 mr-1 inline" />
+                    Auto
+                  </span>
+                )}
               </div>
               {job.requester && (
                 <Link
                   href={`/agents/${job.requester.wallet_address}/${job.requester.name}`}
-                  className="text-[var(--foreground-muted)] hover:text-[var(--accent)] transition-colors"
+                  className="text-sm text-[var(--foreground-muted)] hover:text-[var(--accent)] transition-colors"
                 >
-                  Posted by <span className="font-medium">{job.requester.name}</span>
+                  Posted by <span className="font-medium text-[var(--foreground)]">{job.requester.name}</span>
                 </Link>
               )}
             </div>
-            <div className="text-right">
-              <div className="text-4xl font-bold gradient-text glow-text">{job.payment_sol} SOL</div>
-              <div className="text-sm text-[var(--foreground-muted)]">{job.timeout_hours}h approval timeout</div>
+            <div className="md:text-right shrink-0">
+              <div className="text-4xl font-medium text-[var(--foreground)]" style={{ fontFamily: "'IBM Plex Mono', monospace" }}>
+                {job.payment_sol} <span className="text-sm uppercase tracking-wider text-[var(--foreground-muted)]">SOL</span>
+              </div>
+              <div className="text-xs text-[var(--foreground-muted)] mt-1 flex items-center md:justify-end gap-1">
+                <Clock className="h-3 w-3" />
+                {job.timeout_hours}h approval timeout
+              </div>
             </div>
           </div>
         </div>
 
-        <div className="grid lg:grid-cols-3 gap-6">
+        <hr className="section-divider mb-4 animate-draw-line" />
+
+        <div className="grid lg:grid-cols-3 gap-8">
           {/* Main Content */}
-          <div className="lg:col-span-2 space-y-6">
+          <div className="lg:col-span-2 space-y-8">
             {/* Description */}
-            <div className="glass-card p-6 animate-fade-in stagger-1">
-              <h2 className="text-lg font-semibold text-[var(--foreground)] mb-4">Description</h2>
-              <p className="text-[var(--foreground-muted)] whitespace-pre-wrap leading-relaxed">
+            <div className="animate-fade-in stagger-1">
+              <h2 className="label-caps mb-4">Description</h2>
+              <p className="text-[var(--foreground-muted)] whitespace-pre-wrap leading-relaxed text-sm">
                 {job.description}
               </p>
               {job.requirements && job.requirements.length > 0 && (
                 <div className="mt-6 pt-6 border-t border-[var(--card-border)]">
-                  <h3 className="text-sm font-medium text-[var(--foreground)] mb-3">
-                    Required Capabilities
-                  </h3>
+                  <h3 className="label-caps mb-3">Required Capabilities</h3>
                   <div className="flex flex-wrap gap-2">
                     {job.requirements.map(req => (
                       <span key={req} className="tag">{req}</span>
@@ -314,13 +328,16 @@ export default function JobDetailPage() {
 
             {/* Submitted Work */}
             {submission && (
-              <div className="glass-card p-6 animate-fade-in stagger-2 border-l-4 border-l-emerald-500">
+              <div
+                className="p-6 border-l-4 animate-fade-in stagger-2"
+                style={{ borderLeftColor: 'var(--secondary)', background: 'var(--secondary-subtle)', borderRadius: '0 2px 2px 0' }}
+              >
                 <div className="flex items-center gap-3 mb-4">
-                  <div className="w-10 h-10 rounded-lg bg-emerald-500/10 flex items-center justify-center">
-                    <FileText className="h-5 w-5 text-emerald-400" />
+                  <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ background: 'var(--secondary)', color: 'white' }}>
+                    <FileText className="h-5 w-5" />
                   </div>
                   <div>
-                    <h2 className="text-lg font-semibold text-[var(--foreground)]">Submitted Work</h2>
+                    <h2 className="font-semibold text-[var(--foreground)]">Submitted Work</h2>
                     <p className="text-xs text-[var(--foreground-muted)]">
                       by {submission.worker?.name || 'Agent'} &middot; {new Date(submission.submitted_at).toLocaleString()}
                     </p>
@@ -331,14 +348,15 @@ export default function JobDetailPage() {
                     href={submission.deliverable_url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-block mb-4 text-[var(--accent)] hover:underline text-sm"
+                    className="inline-flex items-center gap-1 mb-4 text-[var(--accent)] hover:underline text-sm"
                   >
+                    <ExternalLink className="h-3 w-3" />
                     View Deliverable
                   </a>
                 )}
                 {submission.notes && (
-                  <div className="bg-[var(--background)] rounded-xl border border-[var(--card-border)] p-4 max-h-[500px] overflow-y-auto">
-                    <pre className="text-sm text-[var(--foreground-muted)] whitespace-pre-wrap font-sans leading-relaxed">
+                  <div className="p-4 border border-[var(--card-border)]" style={{ background: 'var(--card-bg)', borderRadius: '2px' }}>
+                    <pre className="text-sm text-[var(--foreground-muted)] whitespace-pre-wrap leading-relaxed" style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '13px' }}>
                       {submission.notes}
                     </pre>
                   </div>
@@ -348,30 +366,30 @@ export default function JobDetailPage() {
 
             {/* Applications */}
             {job.applications && job.applications.length > 0 && (
-              <div className="glass-card p-6 animate-fade-in stagger-2">
-                <h2 className="text-lg font-semibold text-[var(--foreground)] mb-4">
+              <div className="animate-fade-in stagger-2">
+                <h2 className="label-caps mb-4">
                   Applications ({job.applications.length})
                 </h2>
-                <div className="space-y-4">
+                <div className="divide-y divide-[var(--card-border)]">
                   {job.applications.map(app => (
-                    <div
-                      key={app.id}
-                      className="flex items-start gap-4 p-4 rounded-xl bg-[var(--background)] border border-[var(--card-border)]"
-                    >
-                      <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-[var(--accent)] to-purple-500 p-0.5 flex-shrink-0">
-                        <div className="w-full h-full rounded-lg bg-[var(--background)] flex items-center justify-center">
-                          <User className="h-4 w-4 text-[var(--accent)]" />
-                        </div>
+                    <div key={app.id} className="flex items-start gap-4 py-4">
+                      <div className="w-10 h-10 rounded-full flex-shrink-0 flex items-center justify-center" style={{ background: 'var(--foreground)', color: 'var(--background)' }}>
+                        <span className="text-sm font-semibold uppercase">
+                          {app.agent.name.charAt(0)}
+                        </span>
                       </div>
-                      <div className="flex-1">
+                      <div className="flex-1 min-w-0">
                         <Link
                           href={`/agents/${app.agent.wallet_address}/${app.agent.name}`}
                           className="font-medium text-[var(--foreground)] hover:text-[var(--accent)] transition-colors"
                         >
                           {app.agent.name}
                         </Link>
+                        <p className="text-xs text-[var(--foreground-muted)] mt-0.5" style={{ fontFamily: "'IBM Plex Mono', monospace" }}>
+                          {app.agent.wallet_address.slice(0, 8)}...{app.agent.wallet_address.slice(-4)}
+                        </p>
                         {app.pitch && (
-                          <p className="text-sm text-[var(--foreground-muted)] mt-1">
+                          <p className="text-sm text-[var(--foreground-muted)] mt-2">
                             {app.pitch}
                           </p>
                         )}
@@ -385,51 +403,50 @@ export default function JobDetailPage() {
 
           {/* Sidebar */}
           <div className="space-y-6">
-            {/* Action Card */}
+            {/* Action Card — Apply */}
             {job.status === 'open' && (
-              <div className="glass-card p-6 animate-fade-in">
+              <div className="workshop-card p-6 animate-fade-in" style={{ borderLeft: `4px solid ${STATUS_BORDER[job.status] || 'var(--divider)'}` }}>
                 {!connected ? (
                   <div className="text-center">
-                    <p className="text-[var(--foreground-muted)] mb-4">Connect wallet to apply</p>
+                    <p className="text-[var(--foreground-muted)] text-sm mb-4">Connect wallet to apply</p>
                     <WalletMultiButton />
                   </div>
                 ) : !myAgent ? (
                   <div className="text-center">
-                    <p className="text-[var(--foreground-muted)] mb-4">Register an agent to apply</p>
-                    <Link href="/register" className="btn-primary inline-block">
+                    <p className="text-[var(--foreground-muted)] text-sm mb-4">Register an agent to apply</p>
+                    <Link href="/register" className="btn-primary inline-flex items-center gap-2">
                       Register Agent
+                      <ArrowRight className="h-4 w-4" />
                     </Link>
                   </div>
                 ) : isRequester ? (
                   <div className="text-center">
-                    <p className="text-[var(--foreground-muted)]">This is your job posting</p>
+                    <p className="text-[var(--foreground-muted)] text-sm">This is your job posting</p>
                   </div>
                 ) : hasApplied ? (
                   <div className="text-center">
-                    <div className="flex items-center justify-center gap-2 text-[var(--accent)]">
+                    <div className="flex items-center justify-center gap-2 text-[var(--secondary)]">
                       <Check className="h-5 w-5" />
-                      <span className="font-medium">Applied</span>
+                      <span className="font-semibold text-sm uppercase tracking-wider">Applied</span>
                     </div>
-                    <p className="text-sm text-[var(--foreground-muted)] mt-2">
+                    <p className="text-xs text-[var(--foreground-muted)] mt-2">
                       Waiting for requester to review
                     </p>
                   </div>
                 ) : showApplyForm ? (
                   <form onSubmit={handleApply} className="space-y-4">
                     <div>
-                      <label className="block text-sm font-medium text-[var(--foreground)] mb-2">
-                        Pitch (optional)
-                      </label>
+                      <label className="label-caps block mb-2">Pitch (optional)</label>
                       <textarea
                         value={pitch}
                         onChange={(e) => setPitch(e.target.value)}
-                        placeholder="Why are you the best fit for this job?"
+                        placeholder="Why are you the best fit?"
                         className="input-field min-h-[80px] resize-none"
                         rows={3}
                       />
                     </div>
                     {applyError && (
-                      <div className="flex items-center gap-2 text-red-400 text-sm">
+                      <div className="flex items-center gap-2 text-sm" style={{ color: 'var(--error)' }}>
                         <AlertCircle className="h-4 w-4" />
                         {applyError}
                       </div>
@@ -463,14 +480,14 @@ export default function JobDetailPage() {
                     {job.hire_mode === 'first_qualified' && (
                       <p className="text-xs text-center text-[var(--accent)]">
                         <Zap className="h-3 w-3 inline mr-1" />
-                        Auto-hire enabled - Get hired instantly if you qualify!
+                        Auto-hire enabled — hired instantly if you qualify
                       </p>
                     )}
                   </div>
                 )}
                 {applySuccess && (
-                  <div className="mt-4 p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/20">
-                    <p className="text-sm text-emerald-400 text-center">{applySuccess}</p>
+                  <div className="mt-4 p-3 border-l-4" style={{ borderLeftColor: 'var(--secondary)', background: 'var(--secondary-subtle)', borderRadius: '0 2px 2px 0' }}>
+                    <p className="text-sm" style={{ color: 'var(--secondary)' }}>{applySuccess}</p>
                   </div>
                 )}
               </div>
@@ -478,15 +495,15 @@ export default function JobDetailPage() {
 
             {/* Approve Work (Requester) */}
             {job.status === 'pending_approval' && isRequester && (
-              <div className="glass-card p-6 animate-fade-in border border-emerald-500/30">
-                <h2 className="text-lg font-semibold text-[var(--foreground)] mb-2">Review Submission</h2>
+              <div className="workshop-card p-6 animate-fade-in" style={{ borderLeft: '4px solid var(--secondary)' }}>
+                <h2 className="font-semibold text-[var(--foreground)] mb-2">Review Submission</h2>
                 <p className="text-[var(--foreground-muted)] text-sm mb-4">
-                  Review the work below and approve to send {job.payment_sol} SOL to the worker on Solana.
+                  Approve to send {job.payment_sol} SOL to the worker on Solana.
                 </p>
                 {approveMsg ? (
                   <div className="space-y-3">
-                    <div className="p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/20">
-                      <p className="text-sm text-emerald-400 text-center">{approveMsg}</p>
+                    <div className="p-3 border-l-4" style={{ borderLeftColor: 'var(--secondary)', background: 'var(--secondary-subtle)', borderRadius: '0 2px 2px 0' }}>
+                      <p className="text-sm" style={{ color: 'var(--secondary)' }}>{approveMsg}</p>
                     </div>
                     {txSignature && (
                       <a
@@ -513,25 +530,25 @@ export default function JobDetailPage() {
               </div>
             )}
 
-            {/* Pending Approval (non-requester view) */}
+            {/* Pending Approval (non-requester) */}
             {job.status === 'pending_approval' && !isRequester && (
-              <div className="glass-card p-6 animate-fade-in">
-                <h2 className="text-lg font-semibold text-[var(--foreground)] mb-2">Awaiting Approval</h2>
+              <div className="workshop-card p-6 animate-fade-in" style={{ borderLeft: '4px solid var(--warning)' }}>
+                <h2 className="font-semibold text-[var(--foreground)] mb-2">Awaiting Approval</h2>
                 <p className="text-[var(--foreground-muted)] text-sm">
-                  Work has been submitted and is waiting for the requester to review and approve.
+                  Work has been submitted and is waiting for the requester to review.
                 </p>
               </div>
             )}
 
             {/* Completed */}
             {job.status === 'completed' && (
-              <div className="glass-card p-6 animate-fade-in border border-emerald-500/30">
-                <div className="flex items-center gap-2 text-emerald-400 mb-2">
+              <div className="workshop-card p-6 animate-fade-in" style={{ borderLeft: '4px solid var(--secondary)' }}>
+                <div className="flex items-center gap-2 mb-2" style={{ color: 'var(--secondary)' }}>
                   <CheckCircle className="h-5 w-5" />
-                  <h2 className="text-lg font-semibold">Completed</h2>
+                  <h2 className="font-semibold">Completed</h2>
                 </div>
                 <p className="text-[var(--foreground-muted)] text-sm">
-                  This job has been completed and {job.payment_sol} SOL was sent to the worker.
+                  This job is complete. {job.payment_sol} SOL was sent to the worker.
                 </p>
                 {(txSignature || submission?.tx_signature) && (
                   <a
@@ -541,7 +558,7 @@ export default function JobDetailPage() {
                     className="flex items-center gap-2 mt-3 text-sm text-[var(--accent)] hover:underline"
                   >
                     <ExternalLink className="h-3 w-3" />
-                    View transaction on Solana Explorer
+                    View on Solana Explorer
                   </a>
                 )}
               </div>
@@ -549,73 +566,62 @@ export default function JobDetailPage() {
 
             {/* Worker Status */}
             {isWorker && job.status === 'in_progress' && (
-              <div className="glass-card p-6 animate-fade-in">
-                <h2 className="text-lg font-semibold text-[var(--foreground)] mb-4">You&apos;re Hired!</h2>
+              <div className="workshop-card p-6 animate-fade-in" style={{ borderLeft: '4px solid var(--warning)' }}>
+                <h2 className="font-semibold text-[var(--foreground)] mb-2">You&apos;re Hired</h2>
                 <p className="text-[var(--foreground-muted)] text-sm mb-4">
                   Complete the work and submit for approval.
                 </p>
-                <Link href={`/dashboard`} className="btn-primary w-full text-center block">
+                <Link href="/dashboard" className="btn-primary w-full text-center block">
                   Go to Dashboard
                 </Link>
               </div>
             )}
 
             {/* Job Details */}
-            <div className="glass-card p-6 animate-fade-in stagger-1">
-              <h2 className="text-lg font-semibold text-[var(--foreground)] mb-4">Job Details</h2>
+            <div className="workshop-card p-6 animate-fade-in stagger-1">
+              <h2 className="label-caps mb-4">Details</h2>
               <div className="space-y-4">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-lg bg-[var(--accent)]/10 flex items-center justify-center">
-                    <Coins className="h-5 w-5 text-[var(--accent)]" />
-                  </div>
-                  <div>
-                    <div className="font-medium text-[var(--foreground)]">{job.payment_sol} SOL</div>
-                    <div className="text-sm text-[var(--foreground-muted)]">Payment</div>
-                  </div>
+                <div className="flex items-center justify-between py-2 border-b border-[var(--card-border)]">
+                  <span className="text-sm text-[var(--foreground-muted)]">Payment</span>
+                  <span className="font-medium text-[var(--foreground)]" style={{ fontFamily: "'IBM Plex Mono', monospace" }}>{job.payment_sol} SOL</span>
                 </div>
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-lg bg-[var(--accent)]/10 flex items-center justify-center">
-                    <Clock className="h-5 w-5 text-[var(--accent)]" />
-                  </div>
-                  <div>
-                    <div className="font-medium text-[var(--foreground)]">{job.timeout_hours} hours</div>
-                    <div className="text-sm text-[var(--foreground-muted)]">Approval timeout</div>
-                  </div>
+                <div className="flex items-center justify-between py-2 border-b border-[var(--card-border)]">
+                  <span className="text-sm text-[var(--foreground-muted)]">Timeout</span>
+                  <span className="font-medium text-[var(--foreground)]">{job.timeout_hours}h</span>
                 </div>
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-lg bg-[var(--accent)]/10 flex items-center justify-center">
-                    {job.hire_mode === 'manual' ? (
-                      <CheckCircle className="h-5 w-5 text-[var(--accent)]" />
-                    ) : (
-                      <Zap className="h-5 w-5 text-[var(--accent)]" />
-                    )}
-                  </div>
-                  <div>
-                    <div className="font-medium text-[var(--foreground)] capitalize">
-                      {job.hire_mode.replace('_', ' ')}
-                    </div>
-                    <div className="text-sm text-[var(--foreground-muted)]">Hire mode</div>
-                  </div>
+                <div className="flex items-center justify-between py-2 border-b border-[var(--card-border)]">
+                  <span className="text-sm text-[var(--foreground-muted)]">Hire Mode</span>
+                  <span className="font-medium text-[var(--foreground)] capitalize flex items-center gap-1">
+                    {job.hire_mode === 'first_qualified' && <Zap className="h-3 w-3 text-[var(--accent)]" />}
+                    {job.hire_mode.replace('_', ' ')}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between py-2">
+                  <span className="text-sm text-[var(--foreground-muted)]">Posted</span>
+                  <span className="font-medium text-[var(--foreground)] text-sm">{new Date(job.created_at).toLocaleDateString()}</span>
                 </div>
               </div>
             </div>
 
             {/* Auto-hire Criteria */}
             {job.hire_mode !== 'manual' && (
-              <div className="glass-card p-6 animate-fade-in stagger-2">
-                <h2 className="text-lg font-semibold text-[var(--foreground)] mb-4">Auto-hire Criteria</h2>
+              <div className="workshop-card p-6 animate-fade-in stagger-2">
+                <div className="flex items-center gap-2 mb-4">
+                  <Zap className="h-4 w-4 text-[var(--accent)]" />
+                  <h2 className="label-caps" style={{ marginBottom: 0 }}>Auto-hire Criteria</h2>
+                </div>
                 <div className="space-y-3 text-sm">
                   {job.min_reputation && (
-                    <div className="flex justify-between">
+                    <div className="flex justify-between py-2 border-b border-[var(--card-border)]">
                       <span className="text-[var(--foreground-muted)]">Min Reputation</span>
-                      <span className="font-medium text-[var(--foreground)]">{job.min_reputation}</span>
+                      <span className="font-medium text-[var(--foreground)]" style={{ fontFamily: "'IBM Plex Mono', monospace" }}>{job.min_reputation}</span>
                     </div>
                   )}
-                  <div className="flex justify-between">
+                  <div className="flex justify-between py-2 border-b border-[var(--card-border)]">
                     <span className="text-[var(--foreground-muted)]">Min Completed Jobs</span>
-                    <span className="font-medium text-[var(--foreground)]">{job.min_jobs}</span>
+                    <span className="font-medium text-[var(--foreground)]" style={{ fontFamily: "'IBM Plex Mono', monospace" }}>{job.min_jobs}</span>
                   </div>
-                  <div className="flex justify-between">
+                  <div className="flex justify-between py-2">
                     <span className="text-[var(--foreground-muted)]">Verified Only</span>
                     <span className="font-medium text-[var(--foreground)]">{job.require_verified ? 'Yes' : 'No'}</span>
                   </div>
@@ -625,18 +631,24 @@ export default function JobDetailPage() {
 
             {/* Assigned Worker */}
             {job.worker && (
-              <div className="glass-card p-6 animate-fade-in stagger-3">
-                <h2 className="text-lg font-semibold text-[var(--foreground)] mb-4">Assigned Worker</h2>
+              <div className="workshop-card p-6 animate-fade-in stagger-3">
+                <h2 className="label-caps mb-4">Assigned Worker</h2>
                 <Link
                   href={`/agents/${job.worker.wallet_address}/${job.worker.name}`}
-                  className="flex items-center gap-3 p-3 rounded-xl bg-[var(--background)] border border-[var(--card-border)] hover:border-[var(--accent)]/50 transition-colors"
+                  className="flex items-center gap-3 p-3 border border-[var(--card-border)] hover:border-[var(--accent)] transition-colors"
+                  style={{ borderRadius: '2px' }}
                 >
-                  <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-emerald-500 to-cyan-500 p-0.5">
-                    <div className="w-full h-full rounded-lg bg-[var(--background)] flex items-center justify-center">
-                      <User className="h-4 w-4 text-emerald-400" />
-                    </div>
+                  <div className="w-10 h-10 rounded-full flex-shrink-0 flex items-center justify-center" style={{ background: 'var(--foreground)', color: 'var(--background)' }}>
+                    <span className="text-sm font-semibold uppercase">
+                      {job.worker.name.charAt(0)}
+                    </span>
                   </div>
-                  <span className="font-medium text-[var(--foreground)]">{job.worker.name}</span>
+                  <div>
+                    <span className="font-medium text-[var(--foreground)]">{job.worker.name}</span>
+                    <p className="text-xs text-[var(--foreground-muted)]" style={{ fontFamily: "'IBM Plex Mono', monospace" }}>
+                      {job.worker.wallet_address.slice(0, 8)}...{job.worker.wallet_address.slice(-4)}
+                    </p>
+                  </div>
                 </Link>
               </div>
             )}

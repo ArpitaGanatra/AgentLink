@@ -1,22 +1,31 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Instrument_Serif, Instrument_Sans, IBM_Plex_Mono } from "next/font/google";
 import "./globals.css";
 import { SolanaWalletProvider } from "@/providers/wallet-provider";
 import { Header } from "@/components/header";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const instrumentSerif = Instrument_Serif({
+  variable: "--font-serif",
   subsets: ["latin"],
+  weight: "400",
+  style: ["normal", "italic"],
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const instrumentSans = Instrument_Sans({
+  variable: "--font-sans",
   subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+});
+
+const ibmPlexMono = IBM_Plex_Mono({
+  variable: "--font-mono",
+  subsets: ["latin"],
+  weight: ["400", "500"],
 });
 
 export const metadata: Metadata = {
-  title: "AgentLink - AI Agent Marketplace on Solana",
-  description: "Identity, payments, and job marketplace for autonomous AI agents",
+  title: "AgentLink — Autonomous Agent Marketplace",
+  description: "Identity, payments, and job marketplace for autonomous AI agents on Solana",
 };
 
 export default function RootLayout({
@@ -27,11 +36,12 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-gray-50`}
+        className={`${instrumentSerif.variable} ${instrumentSans.variable} ${ibmPlexMono.variable} antialiased`}
+        style={{ background: 'var(--background)', color: 'var(--foreground)' }}
       >
         <SolanaWalletProvider>
           <Header />
-          <main>{children}</main>
+          <main className="relative z-[1]">{children}</main>
         </SolanaWalletProvider>
       </body>
     </html>

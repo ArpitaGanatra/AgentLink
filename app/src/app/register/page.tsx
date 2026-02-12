@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
-import { Bot, Copy, Check, Sparkles, Wallet, Webhook, ExternalLink } from 'lucide-react';
+import { Copy, Check, Webhook, ExternalLink, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 
 const CAPABILITY_OPTIONS = [
@@ -83,13 +83,10 @@ export default function RegisterPage() {
 
   if (!connected) {
     return (
-      <div className="min-h-screen gradient-bg pt-24 flex items-center justify-center px-4">
-        <div className="glass-card w-full max-w-md p-8 text-center animate-fade-in">
-          <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[var(--accent)] to-purple-500 flex items-center justify-center mx-auto mb-6 glow">
-            <Bot className="h-8 w-8 text-white" />
-          </div>
-          <h2 className="text-2xl font-bold text-[var(--foreground)] mb-2">Connect Your Wallet</h2>
-          <p className="text-[var(--foreground-muted)] mb-6">
+      <div className="min-h-screen pt-24 flex items-center justify-center px-4" style={{ background: 'var(--background)' }}>
+        <div className="workshop-card w-full max-w-md p-8 text-center animate-fade-in">
+          <h2 className="text-2xl font-semibold text-[var(--foreground)] mb-2" style={{ fontFamily: "'Instrument Serif', serif" }}>Connect Your Wallet</h2>
+          <p className="text-[var(--foreground-muted)] text-sm mb-6">
             Connect your Solana wallet to register an agent
           </p>
           <div className="flex justify-center">
@@ -102,25 +99,26 @@ export default function RegisterPage() {
 
   if (success) {
     return (
-      <div className="min-h-screen gradient-bg pt-24 flex items-center justify-center px-4">
-        <div className="glass-card w-full max-w-md p-8 text-center animate-fade-in">
-          <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-emerald-500 to-cyan-500 flex items-center justify-center mx-auto mb-6 glow">
-            <Check className="h-8 w-8 text-white" />
+      <div className="min-h-screen pt-24 flex items-center justify-center px-4" style={{ background: 'var(--background)' }}>
+        <div className="workshop-card w-full max-w-md p-8 text-center animate-fade-in">
+          <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6" style={{ background: 'var(--secondary)', color: 'white' }}>
+            <Check className="h-8 w-8" />
           </div>
-          <h2 className="text-2xl font-bold text-[var(--foreground)] mb-2">Agent Registered!</h2>
-          <p className="text-[var(--foreground-muted)] mb-6">
+          <h2 className="text-2xl font-semibold text-[var(--foreground)] mb-2" style={{ fontFamily: "'Instrument Serif', serif" }}>Agent Registered</h2>
+          <p className="text-[var(--foreground-muted)] text-sm mb-6">
             Save your API key — it won&apos;t be shown again
           </p>
 
-          <div className="bg-[var(--background)] border border-[var(--card-border)] rounded-xl p-4 mb-6">
+          <div className="p-4 mb-6 border border-[var(--card-border)]" style={{ background: 'var(--background)', borderRadius: '2px' }}>
             <div className="flex items-center justify-between gap-2">
-              <code className="text-sm text-[var(--accent)] break-all font-mono">{success.apiKey}</code>
+              <code className="text-sm text-[var(--accent)] break-all" style={{ fontFamily: "'IBM Plex Mono', monospace" }}>{success.apiKey}</code>
               <button
                 onClick={copyApiKey}
-                className="shrink-0 p-2 hover:bg-[var(--card-bg)] rounded-lg transition-colors"
+                className="shrink-0 p-2 hover:bg-[var(--card-bg)] transition-colors cursor-pointer"
+                style={{ borderRadius: '2px' }}
               >
                 {copied ? (
-                  <Check className="h-4 w-4 text-emerald-500" />
+                  <Check className="h-4 w-4" style={{ color: 'var(--secondary)' }} />
                 ) : (
                   <Copy className="h-4 w-4 text-[var(--foreground-muted)]" />
                 )}
@@ -128,7 +126,7 @@ export default function RegisterPage() {
             </div>
           </div>
 
-          <p className="text-sm text-[var(--foreground-muted)] mb-6">
+          <p className="text-xs text-[var(--foreground-muted)] mb-6">
             Use this API key to authenticate your agent&apos;s API requests
           </p>
 
@@ -141,14 +139,14 @@ export default function RegisterPage() {
             </button>
 
             <Link href="/docs/build-agent" className="btn-secondary w-full flex items-center justify-center gap-2">
-              <Bot className="h-4 w-4" />
               Build Autonomous Agent
+              <ArrowRight className="h-4 w-4" />
             </Link>
           </div>
 
           <p className="text-xs text-[var(--foreground-muted)] mt-4 text-center">
             {formData.webhook_url ? (
-              <>Webhook configured! Your agent will receive job notifications.</>
+              <>Webhook configured. Your agent will receive job notifications.</>
             ) : (
               <>Set a webhook URL from your dashboard to receive automatic job notifications.</>
             )}
@@ -159,28 +157,26 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="min-h-screen gradient-bg pt-24 pb-12 px-4">
+    <div className="min-h-screen pt-24 pb-12 px-4" style={{ background: 'var(--background)' }}>
       <div className="max-w-2xl mx-auto">
         {/* Header */}
-        <div className="text-center mb-8 animate-fade-in">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-[var(--card-border)] bg-[var(--card-bg)] backdrop-blur-sm mb-6">
-            <Sparkles className="h-4 w-4 text-[var(--accent)]" />
-            <span className="text-sm text-[var(--foreground-muted)]">Create your on-chain identity</span>
-          </div>
-          <h1 className="text-4xl font-bold text-[var(--foreground)] mb-2">Register Your Agent</h1>
-          <p className="text-[var(--foreground-muted)]">
-            Give your AI agent a unique identity on Solana
+        <div className="mb-4 animate-fade-in">
+          <h1 className="mb-2" style={{ fontFamily: "'Instrument Serif', serif", fontSize: '42px', lineHeight: 1.1, letterSpacing: '-0.02em' }}>
+            Register Your Agent
+          </h1>
+          <p className="text-[var(--foreground-muted)] text-sm">
+            Create your AI agent&apos;s on-chain identity
           </p>
         </div>
 
-        {/* Form Card */}
-        <div className="glass-card p-8 animate-fade-in stagger-1">
-          <form onSubmit={handleSubmit} className="space-y-6">
+        <hr className="section-divider mb-4 animate-draw-line" />
+
+        {/* Form */}
+        <div className="animate-fade-in stagger-1">
+          <form onSubmit={handleSubmit} className="space-y-8">
             {/* Agent Name */}
             <div>
-              <label className="block text-sm font-medium text-[var(--foreground)] mb-2">
-                Agent Name *
-              </label>
+              <label className="label-caps block mb-3">Agent Name *</label>
               <input
                 type="text"
                 value={formData.name}
@@ -197,9 +193,7 @@ export default function RegisterPage() {
 
             {/* Description */}
             <div>
-              <label className="block text-sm font-medium text-[var(--foreground)] mb-2">
-                Description
-              </label>
+              <label className="label-caps block mb-3">Description</label>
               <textarea
                 value={formData.description}
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
@@ -211,9 +205,7 @@ export default function RegisterPage() {
 
             {/* Capabilities */}
             <div>
-              <label className="block text-sm font-medium text-[var(--foreground)] mb-3">
-                Capabilities
-              </label>
+              <label className="label-caps block mb-3">Capabilities</label>
               <div className="flex flex-wrap gap-2">
                 {CAPABILITY_OPTIONS.map((cap) => (
                   <button
@@ -232,10 +224,10 @@ export default function RegisterPage() {
 
             {/* Webhook URL */}
             <div>
-              <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-2">
                   <Webhook className="h-4 w-4 text-[var(--accent)]" />
-                  <label className="text-sm font-medium text-[var(--foreground)]">
+                  <label className="label-caps" style={{ marginBottom: 0 }}>
                     Webhook URL (Optional)
                   </label>
                 </div>
@@ -261,42 +253,32 @@ export default function RegisterPage() {
             </div>
 
             {/* Wallet Info */}
-            <div className="flex items-center gap-3 p-4 rounded-xl bg-[var(--background)] border border-[var(--card-border)]">
-              <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-[var(--accent)] to-purple-500 flex items-center justify-center">
-                <Wallet className="h-5 w-5 text-white" />
+            <div className="flex items-center gap-3 p-4 border border-[var(--card-border)]" style={{ background: 'var(--card-bg)', borderRadius: '2px' }}>
+              <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ background: 'var(--foreground)', color: 'var(--background)' }}>
+                <span className="text-sm font-semibold" style={{ fontFamily: "'IBM Plex Mono', monospace" }}>W</span>
               </div>
               <div>
                 <p className="text-xs text-[var(--foreground-muted)]">Connected Wallet</p>
-                <p className="text-sm font-mono text-[var(--foreground)]">
+                <p className="text-sm text-[var(--foreground)]" style={{ fontFamily: "'IBM Plex Mono', monospace" }}>
                   {publicKey?.toBase58().slice(0, 8)}...{publicKey?.toBase58().slice(-8)}
                 </p>
               </div>
             </div>
 
-            {/* Error Message */}
+            {/* Error */}
             {error && (
-              <div className="p-4 rounded-xl bg-red-500/10 border border-red-500/20">
-                <p className="text-sm text-red-400">{error}</p>
+              <div className="p-4 border-l-4" style={{ borderLeftColor: 'var(--error)', background: 'rgba(184, 59, 59, 0.06)', borderRadius: '0 2px 2px 0' }}>
+                <p className="text-sm" style={{ color: 'var(--error)' }}>{error}</p>
               </div>
             )}
 
-            {/* Submit Button */}
+            {/* Submit */}
             <button
               type="submit"
               className="btn-primary w-full"
               disabled={loading || !formData.name}
             >
-              {loading ? (
-                <span className="flex items-center justify-center gap-2">
-                  <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                  </svg>
-                  Registering...
-                </span>
-              ) : (
-                'Register Agent'
-              )}
+              {loading ? 'Registering...' : 'Register Agent'}
             </button>
           </form>
         </div>

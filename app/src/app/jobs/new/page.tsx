@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
-import { Briefcase, Zap, ArrowRight } from 'lucide-react';
+import { Zap, ArrowRight } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
 
 const REQUIREMENT_OPTIONS = [
@@ -68,7 +68,7 @@ export default function NewJobPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           job_id: jobId,
-          wallet_address: publicKey.toBase58(), // For frontend auth
+          wallet_address: publicKey.toBase58(),
           title: formData.title,
           description: formData.description,
           requirements: formData.requirements.length > 0 ? formData.requirements : null,
@@ -97,13 +97,10 @@ export default function NewJobPage() {
 
   if (!connected) {
     return (
-      <div className="min-h-screen gradient-bg pt-24 flex items-center justify-center px-4">
-        <div className="glass-card w-full max-w-md p-8 text-center animate-fade-in">
-          <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[var(--accent)] to-purple-500 flex items-center justify-center mx-auto mb-6 glow">
-            <Briefcase className="h-8 w-8 text-white" />
-          </div>
-          <h2 className="text-2xl font-bold text-[var(--foreground)] mb-2">Connect Your Wallet</h2>
-          <p className="text-[var(--foreground-muted)] mb-6">
+      <div className="min-h-screen pt-24 flex items-center justify-center px-4" style={{ background: 'var(--background)' }}>
+        <div className="workshop-card w-full max-w-md p-8 text-center animate-fade-in">
+          <h2 className="text-2xl font-semibold text-[var(--foreground)] mb-2" style={{ fontFamily: "'Instrument Serif', serif" }}>Connect Your Wallet</h2>
+          <p className="text-[var(--foreground-muted)] text-sm mb-6">
             Connect your Solana wallet to post a job
           </p>
           <div className="flex justify-center">
@@ -116,13 +113,10 @@ export default function NewJobPage() {
 
   if (!myAgent) {
     return (
-      <div className="min-h-screen gradient-bg pt-24 flex items-center justify-center px-4">
-        <div className="glass-card w-full max-w-md p-8 text-center animate-fade-in">
-          <div className="w-16 h-16 rounded-2xl bg-[var(--card-bg)] flex items-center justify-center mx-auto mb-6">
-            <Briefcase className="h-8 w-8 text-[var(--foreground-muted)]" />
-          </div>
-          <h2 className="text-2xl font-bold text-[var(--foreground)] mb-2">Register an Agent First</h2>
-          <p className="text-[var(--foreground-muted)] mb-6">
+      <div className="min-h-screen pt-24 flex items-center justify-center px-4" style={{ background: 'var(--background)' }}>
+        <div className="workshop-card w-full max-w-md p-8 text-center animate-fade-in">
+          <h2 className="text-2xl font-semibold text-[var(--foreground)] mb-2" style={{ fontFamily: "'Instrument Serif', serif" }}>Register an Agent First</h2>
+          <p className="text-[var(--foreground-muted)] text-sm mb-6">
             You need to register an agent before posting jobs
           </p>
           <button className="btn-primary" onClick={() => router.push('/register')}>
@@ -135,28 +129,26 @@ export default function NewJobPage() {
   }
 
   return (
-    <div className="min-h-screen gradient-bg pt-24 pb-12 px-4">
+    <div className="min-h-screen pt-24 pb-12 px-4" style={{ background: 'var(--background)' }}>
       <div className="max-w-2xl mx-auto">
         {/* Header */}
-        <div className="text-center mb-8 animate-fade-in">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-[var(--card-border)] bg-[var(--card-bg)] backdrop-blur-sm mb-6">
-            <Briefcase className="h-4 w-4 text-[var(--accent)]" />
-            <span className="text-sm text-[var(--foreground-muted)]">Create a new job listing</span>
-          </div>
-          <h1 className="text-4xl font-bold text-[var(--foreground)] mb-2">Post a Job</h1>
-          <p className="text-[var(--foreground-muted)]">
+        <div className="mb-4 animate-fade-in">
+          <h1 className="mb-2" style={{ fontFamily: "'Instrument Serif', serif", fontSize: '42px', lineHeight: 1.1, letterSpacing: '-0.02em' }}>
+            Post a Job
+          </h1>
+          <p className="text-[var(--foreground-muted)] text-sm">
             Create a job for AI agents to complete
           </p>
         </div>
 
+        <hr className="section-divider mb-4 animate-draw-line" />
+
         {/* Form */}
-        <div className="glass-card p-8 animate-fade-in stagger-1">
-          <form onSubmit={handleSubmit} className="space-y-6">
+        <div className="animate-fade-in stagger-1">
+          <form onSubmit={handleSubmit} className="space-y-8">
             {/* Title */}
             <div>
-              <label className="block text-sm font-medium text-[var(--foreground)] mb-2">
-                Job Title *
-              </label>
+              <label className="label-caps block mb-3">Job Title *</label>
               <input
                 type="text"
                 value={formData.title}
@@ -169,9 +161,7 @@ export default function NewJobPage() {
 
             {/* Description */}
             <div>
-              <label className="block text-sm font-medium text-[var(--foreground)] mb-2">
-                Description *
-              </label>
+              <label className="label-caps block mb-3">Description *</label>
               <textarea
                 value={formData.description}
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
@@ -184,9 +174,7 @@ export default function NewJobPage() {
 
             {/* Requirements */}
             <div>
-              <label className="block text-sm font-medium text-[var(--foreground)] mb-3">
-                Required Capabilities
-              </label>
+              <label className="label-caps block mb-3">Required Capabilities</label>
               <div className="flex flex-wrap gap-2">
                 {REQUIREMENT_OPTIONS.map((req) => (
                   <button
@@ -204,11 +192,9 @@ export default function NewJobPage() {
             </div>
 
             {/* Payment & Timeout */}
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 gap-8">
               <div>
-                <label className="block text-sm font-medium text-[var(--foreground)] mb-2">
-                  Payment (SOL) *
-                </label>
+                <label className="label-caps block mb-3">Payment (SOL) *</label>
                 <input
                   type="number"
                   step="0.01"
@@ -221,9 +207,7 @@ export default function NewJobPage() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-[var(--foreground)] mb-2">
-                  Approval Timeout *
-                </label>
+                <label className="label-caps block mb-3">Approval Timeout *</label>
                 <select
                   value={formData.timeout_hours}
                   onChange={(e) => setFormData({ ...formData, timeout_hours: e.target.value })}
@@ -236,33 +220,52 @@ export default function NewJobPage() {
               </div>
             </div>
 
-            {/* Hire Mode */}
+            {/* Hire Mode — radio cards */}
             <div>
-              <label className="block text-sm font-medium text-[var(--foreground)] mb-2">
-                Hire Mode
-              </label>
-              <select
-                value={formData.hire_mode}
-                onChange={(e) => setFormData({ ...formData, hire_mode: e.target.value })}
-                className="input-field"
-              >
-                <option value="manual">Manual - Review and select applicants</option>
-                <option value="first_qualified">Auto-hire first qualified applicant</option>
-              </select>
+              <label className="label-caps block mb-3">Hire Mode</label>
+              <div className="grid grid-cols-2 gap-4">
+                <button
+                  type="button"
+                  onClick={() => setFormData({ ...formData, hire_mode: 'manual' })}
+                  className={`p-4 text-left transition-all cursor-pointer ${
+                    formData.hire_mode === 'manual'
+                      ? 'border-2 border-[var(--foreground)] bg-[var(--card-bg)]'
+                      : 'border border-[var(--card-border)] bg-transparent hover:border-[var(--foreground)]'
+                  }`}
+                  style={{ borderRadius: '2px' }}
+                >
+                  <div className="font-semibold text-sm text-[var(--foreground)] mb-1">Manual</div>
+                  <div className="text-xs text-[var(--foreground-muted)]">Review and select applicants</div>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setFormData({ ...formData, hire_mode: 'first_qualified' })}
+                  className={`p-4 text-left transition-all cursor-pointer ${
+                    formData.hire_mode === 'first_qualified'
+                      ? 'border-2 border-[var(--foreground)] bg-[var(--card-bg)]'
+                      : 'border border-[var(--card-border)] bg-transparent hover:border-[var(--foreground)]'
+                  }`}
+                  style={{ borderRadius: '2px' }}
+                >
+                  <div className="font-semibold text-sm text-[var(--foreground)] mb-1 flex items-center gap-1.5">
+                    <Zap className="h-3.5 w-3.5 text-[var(--accent)]" />
+                    Auto-hire
+                  </div>
+                  <div className="text-xs text-[var(--foreground-muted)]">First qualified applicant</div>
+                </button>
+              </div>
             </div>
 
             {/* Auto-hire Criteria */}
             {formData.hire_mode !== 'manual' && (
-              <div className="p-6 rounded-xl bg-[var(--background)] border border-[var(--card-border)] space-y-4 animate-fade-in">
-                <div className="flex items-center gap-2 text-[var(--accent)]">
+              <div className="p-6 border-l-4 animate-fade-in" style={{ borderLeftColor: 'var(--secondary)', background: 'var(--secondary-subtle)', borderRadius: '0 2px 2px 0' }}>
+                <div className="flex items-center gap-2 text-[var(--secondary)] mb-4">
                   <Zap className="h-4 w-4" />
-                  <span className="font-medium">Auto-hire Criteria</span>
+                  <span className="label-caps" style={{ color: 'var(--secondary)' }}>Auto-hire Criteria</span>
                 </div>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-2 gap-6">
                   <div>
-                    <label className="block text-sm text-[var(--foreground-muted)] mb-2">
-                      Min Reputation Score
-                    </label>
+                    <label className="block text-xs text-[var(--foreground-muted)] mb-2">Min Reputation</label>
                     <input
                       type="number"
                       min="0"
@@ -274,9 +277,7 @@ export default function NewJobPage() {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm text-[var(--foreground-muted)] mb-2">
-                      Min Completed Jobs
-                    </label>
+                    <label className="block text-xs text-[var(--foreground-muted)] mb-2">Min Jobs</label>
                     <input
                       type="number"
                       min="0"
@@ -287,12 +288,13 @@ export default function NewJobPage() {
                     />
                   </div>
                 </div>
-                <label className="flex items-center gap-3 cursor-pointer">
+                <label className="flex items-center gap-3 cursor-pointer mt-4">
                   <input
                     type="checkbox"
                     checked={formData.require_verified}
                     onChange={(e) => setFormData({ ...formData, require_verified: e.target.checked })}
-                    className="w-4 h-4 rounded border-[var(--card-border)] text-[var(--accent)] focus:ring-[var(--accent)]"
+                    className="w-4 h-4"
+                    style={{ accentColor: 'var(--secondary)' }}
                   />
                   <span className="text-sm text-[var(--foreground-muted)]">Require verified agents only</span>
                 </label>
@@ -301,24 +303,14 @@ export default function NewJobPage() {
 
             {/* Error */}
             {error && (
-              <div className="p-4 rounded-xl bg-red-500/10 border border-red-500/20">
-                <p className="text-sm text-red-400">{error}</p>
+              <div className="p-4 border-l-4" style={{ borderLeftColor: 'var(--error)', background: 'rgba(184, 59, 59, 0.06)', borderRadius: '0 2px 2px 0' }}>
+                <p className="text-sm" style={{ color: 'var(--error)' }}>{error}</p>
               </div>
             )}
 
             {/* Submit */}
             <button type="submit" className="btn-primary w-full" disabled={loading}>
-              {loading ? (
-                <span className="flex items-center justify-center gap-2">
-                  <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                  </svg>
-                  Creating...
-                </span>
-              ) : (
-                'Create Job'
-              )}
+              {loading ? 'Creating...' : 'Create Job'}
             </button>
           </form>
         </div>
